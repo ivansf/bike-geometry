@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+<canvas id="bike-render" width="600" height="500">
+	Hey!
+</canvas>
+<script type="text/javascript">
+
+
+
+function Bike(name) {
+	this.name = name;
+	this.wheelSize = null;
+	this.angle = null;
+	this.separation = null;
+	this.zoomFactor = 3;
+
+
+	this.requiredParts = function() {
+		var valid = false;
+		this.name.length > 0 ? valid = true : valid = false;
+		this.wheelSize ? valid = true : valid = false;
+		this.angle > 0 ? valid = true : valid = false;
+		this.separation > 0 ? valid = true : valid = false; 
+		//throw "Missing separation";
+		return valid;
+	}
+
+	/**
+		Renders the bike using regular Canvas.
+	*/
+	this.renderCanvas = function(canvasElement) {
+		var canvas = document.getElementById(canvasElement);
+		var ctx = canvas.getContext('2d');
+		if (!this.requiredParts())  {
+			console.log('Missing parts');
+			return;
+		}
+
+		var base = 250;
+		var leftSpace = 150;
+		
+
+		this.renderGridCanvas(ctx);
+
+
+		// ctx.fillStyle = "rgb(200,0,0)";
+  //       ctx.fillRect (10, 10, 55, 50);
+        
+
+
+
+
+  		// drawing wheels
+		ctx.strokeStyle = "rgb(0,0,0)";
+		ctx.lineWidth = 1;
+		
+		ctx.beginPath();
+		ctx.arc(leftSpace, base, this.wheelSize * this.zoomFactor, 0 ,Math.PI*2, true);
+		ctx.stroke();
+
+		ctx.beginPath();
+		ctx.arc(leftSpace + this.separation * this.zoomFactor, base, this.wheelSize* this.zoomFactor, 0 ,Math.PI*2, true);
+		ctx.stroke();
+
+		// inner wheel
+		ctx.lineWidth = 1;
+		ctx.beginPath();
+		ctx.arc(leftSpace + this.separation * this.zoomFactor, base, (this.wheelSize * 0.9) * this.zoomFactor, 0 ,Math.PI*2, true);
+		ctx.stroke();
+
+		ctx.lineWidth = 1;
+		ctx.beginPath();
+		ctx.arc(leftSpace, base, (this.wheelSize * 0.9) * this.zoomFactor, 0 ,Math.PI*2, true);
+		ctx.stroke();
+
+
+		// bottom bracket
+		ctx.lineWidth = 1;
+		ctx.beginPath();
+		ctx.arc(leftSpace + this.separation/2 * this.zoomFactor, base, 5 * this.zoomFactor, 0 ,Math.PI*2, true);
+		ctx.stroke();
+
+
+		// seat tube
+		ctx.lineWidth = 1;
+		ctx.beginPath();
+		ctx.moveTo(leftSpace + this.separation/2 * this.zoomFactor, base); // this should the center of the BB.
+		ctx.lineTo(leftSpace + this.separation/2.4 * this.zoomFactor, base - 120); // JUST made up for now.
+		ctx.stroke();
+
+
+
+	}
+
+
+	this.renderGridCanvas = function(ctx) { 
+		ctx.beginPath();
+		ctx.strokeStyle = "rgb(120,120,120)";
+		ctx.lineWidth = 0.5;
+		for (var i = 0; i <= 600; i+=10) {
+			ctx.moveTo(i * this.zoomFactor,0);
+			ctx.lineTo(i * this.zoomFactor, 10);
+		};
+
+    	ctx.stroke();
+    	return;
+	}
+
+}
+Bike.prototype = {
+	
+}
+
+b = new Bike("My Bike");
+b.wheelSize = 26;
+b.separation = 100;
+b.angle = 15;
+b.renderCanvas('bike-render');
+</script>
+
+</body>
+</html>
