@@ -5,9 +5,62 @@
 </head>
 <body>
 
-<canvas id="bike-render" width="600" height="500">
-	Hey!
-</canvas>
+<h2>Bike Geometry</h2>
+<div class="container">
+	<div style="width: 600px; float: left;">
+		<canvas id="bike-render" width="600" height="500">
+			Hey!
+		</canvas>
+	</div>	
+	<div style="padding-left: 50px;float: left;">
+		<form>
+			<label> Zoom Factor
+				<input type="number" id="zoomFactor" value="5" onchange="BikeRender()"> 
+			</label>
+			<br>
+			<label> Wheel Size
+				<input type="number" id="wheelSize" value="27.5" onchange="BikeRender()"> 
+			</label>
+			<br>
+			<label> Wheel Base
+				<input type="number" id="wheelBase" value="43.5" onchange="BikeRender()"> 
+			</label>
+			<br>
+			<label> Chainstay
+				<input type="number" id="chainStay" value="0" onchange="BikeRender()"> 
+			</label>
+			<br>
+			<label> Bottom Bracket Height
+				<input type="number" id="bbHeight" value="12" onchange="BikeRender()"> 
+			</label>
+			<br>
+			<label> Seat Tube Length
+				<input type="number" id="seatTube" value="19" onchange="BikeRender()"> 
+			</label>
+			<br>
+			<label> standOverHeight
+				<input type="number" id="standOverHeight" value="0" onchange="BikeRender()"> 
+			</label>
+			<br>
+			<label> seatAngle
+				<input type="number" id="seatAngle" value="73" onchange="BikeRender()"> 
+			</label>
+			<br>
+			<label> headAngle
+				<input type="number" id="headAngle" value="71" onchange="BikeRender()"> 
+			</label>
+			<br>
+			<label> forkLength
+				<input type="number" id="forkLength" value="16" onchange="BikeRender()"> 
+			</label>
+			<br>
+			<label> topTube
+				<input type="number" id="topTube" value="0" onchange="BikeRender()"> 
+			</label>
+		</form>
+	</div>	
+</div>
+
 <script type="text/javascript">
 
 
@@ -17,9 +70,10 @@ var Bike = (function Bike() {
 	// Initial Setup
 	// -------------
 	
-	var name, wheelSize, wheelBase, chainStay, bbHeight, seatTube, standOverHeight, seatAngle,
+	var name, wheelSize, forkLength, wheelBase, chainStay, bbHeight, seatTube, standOverHeight, seatAngle,
 		headAngle, topTube, name;
 	var leftSpace = 150;
+	var ground = 350;
 
 	// Checks for required numbers to be present.
 	// ------------------------------------------
@@ -48,6 +102,14 @@ var Bike = (function Bike() {
 			ctx.lineTo(i * this.zoomFactor, 410);
 		};
     	ctx.stroke();
+
+    	ctx.beginPath();
+    	ctx.moveTo(0, ground);
+    	ctx.lineTo(600, ground);
+    	ctx.strokeStyle = "rgb(120,120,120)";
+    	ctx.lineWidth = 0.5;
+    	ctx.stroke();
+
     	return;
 	}
 
@@ -64,6 +126,7 @@ var Bike = (function Bike() {
 	var bbPosition = function (ground) {
 		// x should be calculated using the chainstay
 
+		// TODO: Properly calculate BB position based on chainstay length using 1 point and an arc.
 		return {
 				x: leftSpace + wheelBase/2 * zoomFactor,
 				y: (ground - (bbHeight * zoomFactor))
@@ -93,6 +156,7 @@ var Bike = (function Bike() {
 			seatAngle = values.seatAngle;
 			headAngle = values.headAngle;
 			topTube = values.topTube;
+			forkLength = values.forkLength;
 		},
 
 		/**
@@ -101,6 +165,8 @@ var Bike = (function Bike() {
 		renderCanvas : function(canvasElement, renderGrid) {
 			canvas = document.getElementById(canvasElement);
 			var ctx = canvas.getContext('2d');
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+
 			// console.log(ctx);
 			if (!requiredParts())  {
 				console.log('Missing parts');
@@ -108,7 +174,7 @@ var Bike = (function Bike() {
 			}
 
 			// var base = 250;
-			var ground = 350;
+			
 			
 
 			if (renderGrid)
@@ -116,9 +182,10 @@ var Bike = (function Bike() {
 
 
 	  		// drawing wheels
-			ctx.strokeStyle = "rgb(0,0,0)";
-			ctx.lineWidth = 1;
+			ctx.strokeStyle = "rgb(140,140,140)";
+			ctx.lineWidth = 2 * zoomFactor;
 			
+
 			ctx.beginPath();
 			ctx.arc(leftSpace, ground - (wheelSize * zoomFactor/2), wheelSize/2 * zoomFactor, 0 ,Math.PI*2, true);
 			ctx.stroke();
@@ -126,6 +193,8 @@ var Bike = (function Bike() {
 			ctx.beginPath();
 			ctx.arc(leftSpace + wheelBase * zoomFactor,  ground - (wheelSize * zoomFactor/2), wheelSize/2* zoomFactor, 0 ,Math.PI*2, true);
 			ctx.stroke();
+
+			ctx.strokeStyle = "rgb(50, 50, 50)";
 
 			// inner wheels
 			// ctx.lineWidth = 1;
@@ -140,23 +209,54 @@ var Bike = (function Bike() {
 
 
 			// bottom bracket
-			ctx.lineWidth = 1;
+			ctx.lineWidth = zoomFactor;
 			ctx.beginPath();
 			ctx.arc(bbPosition(ground).x, bbPosition(ground).y, 1 * zoomFactor, 0 ,Math.PI*2, true);
 			ctx.stroke();
 
 
 			// seat tube
-			angle = 270 - 73;
+			angle = 270 - seatAngle;
 			angle = angle * Math.PI / 180;
 			endX = bbPosition(ground).x + (seatTube * zoomFactor) * Math.sin(angle);
 			endY = bbPosition(ground).y + (seatTube * zoomFactor) * Math.cos(angle);
+			ctx.lineWidth = 1 * zoomFactor;
+			ctx.beginPath();
+			ctx.moveTo(bbPosition(ground).x, bbPosition(ground).y);
+			ctx.lineTo(endX, endY); 
+			ctx.stroke();
 
-			ctx.lineWidth = 1;
+
+			//chainstay
 			ctx.beginPath();
 			ctx.moveTo(bbPosition(ground).x, bbPosition(ground).y); // this should the center of the BB.
-			ctx.lineTo(endX, endY); // JUST made up for now.
+			ctx.lineTo(leftSpace, ground - (wheelSize * zoomFactor/2)); 
 			ctx.stroke();
+
+			// fork
+			angle = 270 - headAngle;
+			angle = angle * Math.PI / 180;
+			forkTopX = leftSpace + wheelBase * zoomFactor + (forkLength * zoomFactor) * Math.sin(angle);
+			forkTopY = ground - (wheelSize * zoomFactor/2) + (forkLength * zoomFactor) * Math.cos(angle);
+			ctx.lineWidth = 1 * zoomFactor;
+			ctx.beginPath();
+			ctx.moveTo(leftSpace + wheelBase * zoomFactor, ground - (wheelSize * zoomFactor/2));
+			ctx.lineTo(forkTopX, forkTopY);
+			ctx.stroke();
+
+			// Head Tube
+			// Using the end of the fork (top coordinates)
+			angle = 270 - headAngle;
+			angle = angle * Math.PI / 180;
+			endX = forkTopX + (5 * zoomFactor) * Math.sin(angle);
+			endY = forkTopY + (5 * zoomFactor) * Math.cos(angle);
+			ctx.lineWidth = 2 * zoomFactor;
+			ctx.beginPath();
+			ctx.moveTo(forkTopX, forkTopY);
+			ctx.lineTo(endX, endY); 
+			ctx.stroke();
+
+
 
 		},
 
@@ -173,8 +273,9 @@ values = {
 	bbHeight : 12,
 	seatTube : 19,
 	standOverHeight : 0,
-	seatAngle : 0,
-	headAngle : 0,
+	seatAngle : 73,
+	headAngle : 71,
+	forkLength : 16,
 	topTube: 0
 }
 
@@ -182,6 +283,29 @@ Bike.setValues(values);
 Bike.renderCanvas("bike-render", true);
 
 </script>
+
+<script type="text/javascript">
+	
+	BikeRender = function () {
+		values.zoomFactor  = document.getElementById('zoomFactor').value;
+		values.wheelSize  = document.getElementById('wheelSize').value;
+		values.wheelBase  = document.getElementById('wheelBase').value;
+		values.chainStay  = document.getElementById('chainStay').value;
+		values.bbHeight  = document.getElementById('bbHeight').value;
+		values.seatTube  = document.getElementById('seatTube').value;
+		values.standOverHeight  = document.getElementById('standOverHeight').value;
+		values.seatAngle  = document.getElementById('seatAngle').value;
+		values.headAngle  = document.getElementById('headAngle').value;
+		values.forkLength  = document.getElementById('forkLength').value;
+		values.topTube  = document.getElementById('topTube').value;
+		Bike.setValues(values);
+		Bike.renderCanvas("bike-render", true);
+	}
+
+</script>
+
+
+
 
 </body>
 </html>
