@@ -59,12 +59,25 @@ var Bike = (function Bike() {
 	var bbPosition = function (ground) {
 		// x should be calculated using the chainstay
 
+		bbToWheelCenter = wheelSize/2 - bbHeight;
+
+		// var y = ground - (wheelSize/2 + bbHeight);
+		// var x = Math.sqrt(Math.abs(Math.pow(chainStay, 2) - Math.pow(y, 2)));
+// bbX();
 		// TODO: Properly calculate BB position based on chainstay length using 1 point and an arc.
 		return {
-				x: leftSpace + wheelBase/2 * zoomFactor,
-				y: (ground - (bbHeight * zoomFactor))
+				x: leftSpace + (bbX() * zoomFactor),
+				y: ground - (bbHeight * zoomFactor)
 			}; // random number for now
 	}
+
+	var bbX = function() {
+		var x = Math.sqrt(Math.abs(Math.pow(chainStay, 2) - Math.pow(bbToWheelCenter, 2)));
+		console.log(x);
+		return x;
+	}
+
+
 
 
 	// Public Methods
@@ -95,7 +108,10 @@ var Bike = (function Bike() {
 		/**
 			Renders the bike using regular Canvas.
 		*/
-		renderCanvas : function(canvasElement, renderGrid) {
+		renderCanvas : function(canvasElement, renderGrid, values) {
+
+			this.setValues(values);
+
 			canvas = document.getElementById(canvasElement);
 			var ctx = canvas.getContext('2d');
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -116,11 +132,15 @@ var Bike = (function Bike() {
 
 	  		// drawing wheels
 			ctx.strokeStyle = "rgb(140,140,140)";
-			ctx.lineWidth = 2 * zoomFactor;
+			ctx.lineWidth = 1;// * zoomFactor;
 			
 
 			ctx.beginPath();
 			ctx.arc(leftSpace, ground - (wheelSize * zoomFactor/2), wheelSize/2 * zoomFactor, 0 ,Math.PI*2, true);
+			ctx.stroke();
+
+			ctx.beginPath();
+			ctx.arc(0, 0, 190, 0 ,Math.PI*2, true);
 			ctx.stroke();
 
 			ctx.beginPath();
@@ -162,8 +182,9 @@ var Bike = (function Bike() {
 
 			//chainstay
 			ctx.beginPath();
-			ctx.moveTo(bbPosition(ground).x, bbPosition(ground).y); // this should the center of the BB.
-			ctx.lineTo(leftSpace, ground - (wheelSize * zoomFactor/2)); 
+			ctx.moveTo(leftSpace, ground - (wheelSize * zoomFactor/2)); 
+			ctx.lineTo(bbPosition(ground).x, bbPosition(ground).y); // this should the center of the BB.
+			
 			ctx.stroke();
 
 			// fork
