@@ -140,10 +140,6 @@ var Bike = (function Bike() {
 			ctx.stroke();
 
 			ctx.beginPath();
-			ctx.arc(0, 0, 190, 0 ,Math.PI*2, true);
-			ctx.stroke();
-
-			ctx.beginPath();
 			ctx.arc(leftSpace + wheelBase * zoomFactor,  ground - (wheelSize * zoomFactor/2), wheelSize/2* zoomFactor, 0 ,Math.PI*2, true);
 			ctx.stroke();
 
@@ -171,12 +167,12 @@ var Bike = (function Bike() {
 			// seat tube
 			angle = 270 - seatAngle;
 			angle = angle * Math.PI / 180;
-			endX = bbPosition(ground).x + (seatTube * zoomFactor) * Math.sin(angle);
-			endY = bbPosition(ground).y + (seatTube * zoomFactor) * Math.cos(angle);
+			seatTubeTopX = bbPosition(ground).x + (seatTube * zoomFactor) * Math.sin(angle);
+			seatTubeTopY = bbPosition(ground).y + (seatTube * zoomFactor) * Math.cos(angle);
 			ctx.lineWidth = 1 * zoomFactor;
 			ctx.beginPath();
 			ctx.moveTo(bbPosition(ground).x, bbPosition(ground).y);
-			ctx.lineTo(endX, endY); 
+			ctx.lineTo(seatTubeTopX, seatTubeTopY); 
 			ctx.stroke();
 
 
@@ -198,6 +194,11 @@ var Bike = (function Bike() {
 			ctx.lineTo(forkTopX, forkTopY);
 			ctx.stroke();
 
+
+
+
+
+
 			// Head Tube
 			// Using the end of the fork (top coordinates)
 			angle = 270 - headAngle;
@@ -210,8 +211,28 @@ var Bike = (function Bike() {
 			ctx.lineTo(endX, endY); 
 			ctx.stroke();
 
+			// Rest of Frame
+			// TODO: Have options.
+
+			ctx.lineWidth = 1 * zoomFactor;
+			ctx.beginPath();
+			ctx.moveTo(bbPosition(ground).x, bbPosition(ground).y);
+			ctx.lineTo(endX, endY);
+			ctx.stroke();
 
 
+			ctx.lineWidth = 1 * zoomFactor;
+			ctx.beginPath();
+			ctx.moveTo(endX, endY);
+			ctx.lineTo(seatTubeTopX, seatTubeTopY);
+			ctx.stroke();
+
+			
+			ctx.lineWidth = 1 * zoomFactor;
+			ctx.beginPath();
+			ctx.moveTo(leftSpace, ground - (wheelSize * zoomFactor/2));
+			ctx.lineTo(seatTubeTopX, seatTubeTopY);
+			ctx.stroke();
 		},
 
 	}
