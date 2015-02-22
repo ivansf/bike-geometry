@@ -32,8 +32,14 @@
 	</div>	
 	<div style="padding-left: 50px;float: left;">
 		<form>
+			<label> Left Space
+				<input type="number" id="leftSpace" value="150" step="1" onchange="BikeRender()"> 
+			</label>
+			<label> Ground Level
+				<input type="number" id="groundLevel" value="350" step="1" onchange="BikeRender()"> 
+			</label>
 			<label> Zoom Factor
-				<input type="number" id="zoomFactor" value="5" onchange="BikeRender()"> 
+				<input type="number" id="zoomFactor" value="5" step="0.2" onchange="BikeRender()"> 
 			</label>
 			<label> Wheel Size
 				<input type="number" id="wheelSize" value="27.5" onchange="BikeRender()"> 
@@ -90,6 +96,9 @@
 	// Bike.renderCanvas("bike-render", true, values);
 
 	BikeRender = function () {
+
+		values.leftSpace  = document.getElementById('leftSpace').value;
+		values.groundLevel  = document.getElementById('groundLevel').value;
 		values.zoomFactor  = document.getElementById('zoomFactor').value;
 		values.wheelSize  = document.getElementById('wheelSize').value;
 		values.wheelBase  = document.getElementById('wheelBase').value;
@@ -101,10 +110,11 @@
 		values.headAngle  = document.getElementById('headAngle').value;
 		values.forkLength  = document.getElementById('forkLength').value;
 		values.topTube  = document.getElementById('topTube').value;
-		Bike.renderCanvas("bike-render", true, values);
+		Bike.renderCanvas("bike-render", true, values, "http://bikemtb.net/wp-content/uploads/2014/06/Canyon-2015-Strive-CF-27.5.jpg");
 
 	}
 	BikeRender();
+
 
 </script>
 

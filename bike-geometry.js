@@ -4,9 +4,7 @@ var Bike = (function Bike() {
 	// -------------
 	
 	var name, wheelSize, forkLength, wheelBase, chainStay, bbHeight, seatTube, standOverHeight, seatAngle,
-		headAngle, topTube, name;
-	var leftSpace = 150;
-	var ground = 350;
+		headAngle, topTube, name, leftSpace, groundLevel;
 
 	// Checks for required numbers to be present.
 	// ------------------------------------------
@@ -37,8 +35,8 @@ var Bike = (function Bike() {
     	ctx.stroke();
 
     	ctx.beginPath();
-    	ctx.moveTo(0, ground);
-    	ctx.lineTo(600, ground);
+    	ctx.moveTo(0, groundLevel);
+    	ctx.lineTo(600, groundLevel);
     	ctx.strokeStyle = "rgb(120,120,120)";
     	ctx.lineWidth = 0.5;
     	ctx.stroke();
@@ -56,21 +54,16 @@ var Bike = (function Bike() {
 	// Helpers and position calculations
 	// ---------------------------------
 
-	var bbPosition = function (ground) {
-		// x should be calculated using the chainstay
-
+	// Returns the BB position based on the Chainstay length
+	var bbPosition = function () {
 		bbToWheelCenter = wheelSize/2 - bbHeight;
-
-		// var y = ground - (wheelSize/2 + bbHeight);
-		// var x = Math.sqrt(Math.abs(Math.pow(chainStay, 2) - Math.pow(y, 2)));
-// bbX();
-		// TODO: Properly calculate BB position based on chainstay length using 1 point and an arc.
 		return {
 				x: leftSpace + (bbX() * zoomFactor),
-				y: ground - (bbHeight * zoomFactor)
-			}; // random number for now
+				y: groundLevel - (bbHeight * zoomFactor)
+			};
 	}
 
+	// Return the BB x position based on the chainstay length
 	var bbX = function() {
 		var x = Math.sqrt(Math.abs(Math.pow(chainStay, 2) - Math.pow(bbToWheelCenter, 2)));
 		console.log(x);
@@ -78,6 +71,145 @@ var Bike = (function Bike() {
 	}
 
 
+	// Renders the bike into the provided canvas context.
+	var renderBike = function(ctx) {
+  		// drawing wheels
+		ctx.strokeStyle = "rgb(140,140,140)";
+		ctx.lineWidth = 1;// * zoomFactor;
+		
+		ctx.beginPath();
+		ctx.arc(leftSpace, groundLevel - (wheelSize * zoomFactor/2), wheelSize/2 * zoomFactor, 0 ,Math.PI*2, true);
+		ctx.stroke();
+
+		ctx.beginPath();
+		ctx.arc(leftSpace + wheelBase * zoomFactor,  groundLevel - (wheelSize * zoomFactor/2), wheelSize/2* zoomFactor, 0 ,Math.PI*2, true);
+		ctx.stroke();
+
+		ctx.strokeStyle = "rgb(50, 50, 50)";
+
+		// bottom bracket
+		ctx.lineWidth = zoomFactor;
+		ctx.beginPath();
+		ctx.arc(bbPosition().x, bbPosition().y, 1 * zoomFactor, 0 ,Math.PI*2, true);
+		ctx.stroke();
+
+
+		// seat tube
+		angle = 270 - seatAngle;
+		angle = angle * Math.PI / 180;
+		seatTubeTopX = bbPosition().x + (seatTube * zoomFactor) * Math.sin(angle);
+		seatTubeTopY = bbPosition().y + (seatTube * zoomFactor) * Math.cos(angle);
+		ctx.lineWidth = 1 * zoomFactor;
+		ctx.beginPath();
+		ctx.moveTo(bbPosition().x, bbPosition().y);
+		ctx.lineTo(seatTubeTopX, seatTubeTopY); 
+		ctx.stroke();
+
+
+		//chainstay
+		ctx.beginPath();
+		ctx.moveTo(leftSpace, groundLevel - (wheelSize * zoomFactor/2)); 
+		ctx.lineTo(bbPosition().x, bbPosition().y); // this should the center of the BB.
+		
+		ctx.stroke();
+
+		// fork
+		angle = 270 - headAngle;
+		angle = angle * Math.PI / 180;
+		forkTopX = leftSpace + wheelBase * zoomFactor + (forkLength * zoomFactor) * Math.sin(angle);
+		forkTopY = groundLevel - (wheelSize * zoomFactor/2) + (forkLength * zoomFactor) * Math.cos(angle);
+		ctx.lineWidth = 1 * zoomFactor;
+		ctx.beginPath();
+		ctx.moveTo(leftSpace + wheelBase * zoomFactor, groundLevel - (wheelSize * zoomFactor/2));
+		ctx.lineTo(forkTopX, forkTopY);
+		ctx.stroke();
+
+
+		// Head Tube
+		// Using the end of the fork (top coordinates)
+		angle = 270 - headAngle;
+		angle = angle * Math.PI / 180;
+		endX = forkTopX + (5 * zoomFactor) * Math.sin(angle);
+		endY = forkTopY + (5 * zoomFactor) * Math.cos(angle);
+		ctx.lineWidth = 2 * zoomFactor;
+		ctx.beginPath();
+		ctx.moveTo(forkTopX, forkTopY);
+		ctx.lineTo(endX, endY); 
+		ctx.stroke();
+
+		// Rest of Frame
+		// TODO: Have options.
+
+		ctx.lineWidth = 1 * zoomFactor;
+		ctx.beginPath();
+		ctx.moveTo(bbPosition(groundLevel).x, bbPosition(groundLevel).y);
+		ctx.lineTo(endX, endY);
+		ctx.stroke();
+
+
+		ctx.lineWidth = 1 * zoomFactor;
+		ctx.beginPath();
+		ctx.moveTo(endX, endY);
+		ctx.lineTo(seatTubeTopX, seatTubeTopY);
+		ctx.stroke();
+
+
+		ctx.lineWidth = 1 * zoomFactor;
+		ctx.beginPath();
+		ctx.moveTo(leftSpace, groundLevel - (wheelSize * zoomFactor/2));
+		ctx.lineTo(seatTubeTopX, seatTubeTopY);
+		ctx.stroke();
+	}
+
+
+	var renderMeasurements  = function(ctx) {
+		ctx.strokeStyle = "rgb(250,0,0)";
+		ctx.lineWidth = 2;// * zoomFactor;
+		ctx.globalAlpha = 1;
+		ctx.font = (2 * zoomFactor) + "px Arial";
+
+		measurementSpacing = 2 * zoomFactor;
+
+		// wheels
+		ctx.beginPath();
+		ctx.moveTo(leftSpace - wheelSize*zoomFactor/2, groundLevel + 1 * zoomFactor); 
+		ctx.lineTo(leftSpace + wheelSize*zoomFactor/2, groundLevel + 1 * zoomFactor); // this should the center of the BB.
+		ctx.stroke();
+
+		// wheels
+		ctx.beginPath();
+		ctx.moveTo(leftSpace - (wheelSize)*zoomFactor/2 + wheelBase*zoomFactor, groundLevel + 1 * zoomFactor); 
+		ctx.lineTo(leftSpace + (wheelSize)*zoomFactor/2 + wheelBase*zoomFactor, groundLevel + 1 * zoomFactor); // this should the center of the BB.
+		ctx.stroke();
+
+		// fork
+		angle = 270 - headAngle;
+		angle = angle * Math.PI / 180;
+		forkTopX = measurementSpacing + leftSpace + wheelBase * zoomFactor + (forkLength * zoomFactor) * Math.sin(angle);
+		forkTopY = groundLevel - (wheelSize * zoomFactor/2) + (forkLength * zoomFactor) * Math.cos(angle);
+		ctx.beginPath();
+		ctx.moveTo(measurementSpacing + leftSpace + wheelBase * zoomFactor, groundLevel - (wheelSize * zoomFactor/2));
+		ctx.lineTo(measurementSpacing + leftSpace + wheelBase * zoomFactor, forkTopY);
+		ctx.stroke();
+		ctx.beginPath();
+		ctx.moveTo(measurementSpacing + leftSpace + wheelBase * zoomFactor - 2 * zoomFactor, groundLevel - (wheelSize * zoomFactor/2));
+		ctx.lineTo(measurementSpacing + leftSpace + wheelBase * zoomFactor, groundLevel - (wheelSize * zoomFactor/2));
+		ctx.stroke();
+		ctx.beginPath();
+		ctx.moveTo(measurementSpacing + leftSpace + wheelBase * zoomFactor - 2 * zoomFactor, forkTopY);
+		ctx.lineTo(measurementSpacing + leftSpace + wheelBase * zoomFactor, forkTopY);
+		ctx.stroke();
+
+
+		ctx.save();
+		ctx.fillStyle = "rgb(250,0,0)";
+		ctx.translate(measurementSpacing + leftSpace + wheelBase * zoomFactor, groundLevel - (wheelSize * zoomFactor/2));
+		ctx.rotate(-Math.PI/2);
+		ctx.textAlign = "right";
+		ctx.fillText("23", forkLength/2 * zoomFactor, measurementSpacing);
+		ctx.restore();
+
+	}
 
 
 	// Public Methods
@@ -92,23 +224,25 @@ var Bike = (function Bike() {
 
 		setValues : function(values) {
 			name = values.name;
-			zoomFactor = values.zoomFactor;
-			wheelSize = values.wheelSize;
-			wheelBase = values.wheelBase;
-			chainStay = values.chainStay;
-			bbHeight = values.bbHeight;
-			seatTube = values.seatTube;
-			standOverHe = values.standOverHeight;
-			seatAngle = values.seatAngle;
-			headAngle = values.headAngle;
-			topTube = values.topTube;
-			forkLength = values.forkLength;
+			leftSpace = parseFloat(values.leftSpace);
+			groundLevel = parseFloat(values.groundLevel);
+			zoomFactor = parseFloat(values.zoomFactor);
+			wheelSize = parseFloat(values.wheelSize);
+			wheelBase = parseFloat(values.wheelBase);
+			chainStay = parseFloat(values.chainStay);
+			bbHeight = parseFloat(values.bbHeight);
+			seatTube = parseFloat(values.seatTube);
+			standOverHe = parseFloat(values.standOverHeight);
+			seatAngle = parseFloat(values.seatAngle);
+			headAngle = parseFloat(values.headAngle);
+			topTube = parseFloat(values.topTube);
+			forkLength = parseFloat(values.forkLength);
 		},
 
 		/**
 			Renders the bike using regular Canvas.
 		*/
-		renderCanvas : function(canvasElement, renderGrid, values) {
+		renderCanvas : function(canvasElement, renderGrid, values, imgUrl) {
 
 			this.setValues(values);
 
@@ -122,117 +256,28 @@ var Bike = (function Bike() {
 				return;
 			}
 
-			// var base = 250;
-			
-			
+			// render image
+			if (imgUrl) {
+				var img = new Image;
+				img.src = imgUrl;
+				img.onload = function() {
+					ctx.globalAlpha = 0.3;
+					ctx.drawImage(img,0,0, 600, 600 * img.height / img.width);
+					ctx.globalAlpha = 1;
+					if (renderGrid)
+						renderGridCanvas(ctx);
+					renderBike(ctx);
+					renderMeasurements(ctx);
+				}
+				
 
-			if (renderGrid)
-				renderGridCanvas(ctx);
+			} else  {
+				if (renderGrid)
+					renderGridCanvas(ctx);
+				renderBike(ctx);
+				renderMeasurements(ctx);
+			}
 
-
-	  		// drawing wheels
-			ctx.strokeStyle = "rgb(140,140,140)";
-			ctx.lineWidth = 1;// * zoomFactor;
-			
-
-			ctx.beginPath();
-			ctx.arc(leftSpace, ground - (wheelSize * zoomFactor/2), wheelSize/2 * zoomFactor, 0 ,Math.PI*2, true);
-			ctx.stroke();
-
-			ctx.beginPath();
-			ctx.arc(leftSpace + wheelBase * zoomFactor,  ground - (wheelSize * zoomFactor/2), wheelSize/2* zoomFactor, 0 ,Math.PI*2, true);
-			ctx.stroke();
-
-			ctx.strokeStyle = "rgb(50, 50, 50)";
-
-			// inner wheels
-			// ctx.lineWidth = 1;
-			// ctx.beginPath();
-			// ctx.arc(leftSpace + wheelBase * zoomFactor,  ground - (wheelSize * zoomFactor/2), (wheelSize/2 * 0.9) * zoomFactor, 0 ,Math.PI*2, true);
-			// ctx.stroke();
-
-			// ctx.lineWidth = 1;
-			// ctx.beginPath();
-			// ctx.arc(leftSpace,  ground - (wheelSize * zoomFactor/2), (wheelSize * 0.9) * zoomFactor/2, 0 ,Math.PI*2, true);
-			// ctx.stroke();
-
-
-			// bottom bracket
-			ctx.lineWidth = zoomFactor;
-			ctx.beginPath();
-			ctx.arc(bbPosition(ground).x, bbPosition(ground).y, 1 * zoomFactor, 0 ,Math.PI*2, true);
-			ctx.stroke();
-
-
-			// seat tube
-			angle = 270 - seatAngle;
-			angle = angle * Math.PI / 180;
-			seatTubeTopX = bbPosition(ground).x + (seatTube * zoomFactor) * Math.sin(angle);
-			seatTubeTopY = bbPosition(ground).y + (seatTube * zoomFactor) * Math.cos(angle);
-			ctx.lineWidth = 1 * zoomFactor;
-			ctx.beginPath();
-			ctx.moveTo(bbPosition(ground).x, bbPosition(ground).y);
-			ctx.lineTo(seatTubeTopX, seatTubeTopY); 
-			ctx.stroke();
-
-
-			//chainstay
-			ctx.beginPath();
-			ctx.moveTo(leftSpace, ground - (wheelSize * zoomFactor/2)); 
-			ctx.lineTo(bbPosition(ground).x, bbPosition(ground).y); // this should the center of the BB.
-			
-			ctx.stroke();
-
-			// fork
-			angle = 270 - headAngle;
-			angle = angle * Math.PI / 180;
-			forkTopX = leftSpace + wheelBase * zoomFactor + (forkLength * zoomFactor) * Math.sin(angle);
-			forkTopY = ground - (wheelSize * zoomFactor/2) + (forkLength * zoomFactor) * Math.cos(angle);
-			ctx.lineWidth = 1 * zoomFactor;
-			ctx.beginPath();
-			ctx.moveTo(leftSpace + wheelBase * zoomFactor, ground - (wheelSize * zoomFactor/2));
-			ctx.lineTo(forkTopX, forkTopY);
-			ctx.stroke();
-
-
-
-
-
-
-			// Head Tube
-			// Using the end of the fork (top coordinates)
-			angle = 270 - headAngle;
-			angle = angle * Math.PI / 180;
-			endX = forkTopX + (5 * zoomFactor) * Math.sin(angle);
-			endY = forkTopY + (5 * zoomFactor) * Math.cos(angle);
-			ctx.lineWidth = 2 * zoomFactor;
-			ctx.beginPath();
-			ctx.moveTo(forkTopX, forkTopY);
-			ctx.lineTo(endX, endY); 
-			ctx.stroke();
-
-			// Rest of Frame
-			// TODO: Have options.
-
-			ctx.lineWidth = 1 * zoomFactor;
-			ctx.beginPath();
-			ctx.moveTo(bbPosition(ground).x, bbPosition(ground).y);
-			ctx.lineTo(endX, endY);
-			ctx.stroke();
-
-
-			ctx.lineWidth = 1 * zoomFactor;
-			ctx.beginPath();
-			ctx.moveTo(endX, endY);
-			ctx.lineTo(seatTubeTopX, seatTubeTopY);
-			ctx.stroke();
-
-			
-			ctx.lineWidth = 1 * zoomFactor;
-			ctx.beginPath();
-			ctx.moveTo(leftSpace, ground - (wheelSize * zoomFactor/2));
-			ctx.lineTo(seatTubeTopX, seatTubeTopY);
-			ctx.stroke();
 		},
 
 	}
