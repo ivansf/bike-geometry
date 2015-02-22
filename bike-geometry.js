@@ -161,7 +161,9 @@ var Bike = (function Bike() {
 		ctx.stroke();
 	}
 
-
+	//
+	// Renders all Measurements.
+	// 
 	var renderMeasurements  = function(ctx) {
 		ctx.strokeStyle = "rgb(250,0,0)";
 		ctx.lineWidth = 2;// * zoomFactor;
@@ -171,43 +173,91 @@ var Bike = (function Bike() {
 		measurementSpacing = 2 * zoomFactor;
 
 		// wheels
-		ctx.beginPath();
-		ctx.moveTo(leftSpace - wheelSize*zoomFactor/2, groundLevel + 1 * zoomFactor); 
-		ctx.lineTo(leftSpace + wheelSize*zoomFactor/2, groundLevel + 1 * zoomFactor); // this should the center of the BB.
-		ctx.stroke();
+		renderMeasurement(ctx, leftSpace - wheelSize*zoomFactor/2, groundLevel + 1 * zoomFactor,
+			leftSpace + wheelSize*zoomFactor/2, groundLevel + 1 * zoomFactor, wheelSize, measurementSpacing);
 
-		// wheels
-		ctx.beginPath();
-		ctx.moveTo(leftSpace - (wheelSize)*zoomFactor/2 + wheelBase*zoomFactor, groundLevel + 1 * zoomFactor); 
-		ctx.lineTo(leftSpace + (wheelSize)*zoomFactor/2 + wheelBase*zoomFactor, groundLevel + 1 * zoomFactor); // this should the center of the BB.
-		ctx.stroke();
+		renderMeasurement(ctx, leftSpace - (wheelSize)*zoomFactor/2 + wheelBase*zoomFactor,
+			groundLevel + 1 * zoomFactor, leftSpace + (wheelSize)*zoomFactor/2 + wheelBase*zoomFactor, groundLevel + 1 * zoomFactor,
+			wheelSize, measurementSpacing);
 
 		// fork
 		angle = 270 - headAngle;
 		angle = angle * Math.PI / 180;
 		forkTopX = measurementSpacing + leftSpace + wheelBase * zoomFactor + (forkLength * zoomFactor) * Math.sin(angle);
 		forkTopY = groundLevel - (wheelSize * zoomFactor/2) + (forkLength * zoomFactor) * Math.cos(angle);
+
+		renderMeasurement(
+			ctx,
+			measurementSpacing + leftSpace + wheelBase * zoomFactor,
+			groundLevel - (wheelSize * zoomFactor/2),
+			measurementSpacing + leftSpace + wheelBase * zoomFactor,
+			forkTopY,
+			forkLength,
+			measurementSpacing
+			);
+
+		// BB height
+		renderMeasurement(ctx, bbPosition().x + 9, groundLevel, bbPosition().x + 9, bbPosition().y, bbHeight, measurementSpacing);
+
+		// chainstay
+		renderMeasurement(ctx, leftSpace, bbPosition().y + 15, 
+			bbPosition().x, bbPosition().y + 15, chainStay, measurementSpacing);
+	}
+
+	// renderMeasurement()
+	// 		Renders a single measurement.
+	//		spacing from the part must be provided.
+	//		It doesn't use zoom factor
+	var renderMeasurement = function(ctx, startX, startY, endX, endY, label, measurementSpacing) {
+
 		ctx.beginPath();
-		ctx.moveTo(measurementSpacing + leftSpace + wheelBase * zoomFactor, groundLevel - (wheelSize * zoomFactor/2));
-		ctx.lineTo(measurementSpacing + leftSpace + wheelBase * zoomFactor, forkTopY);
-		ctx.stroke();
-		ctx.beginPath();
-		ctx.moveTo(measurementSpacing + leftSpace + wheelBase * zoomFactor - 2 * zoomFactor, groundLevel - (wheelSize * zoomFactor/2));
-		ctx.lineTo(measurementSpacing + leftSpace + wheelBase * zoomFactor, groundLevel - (wheelSize * zoomFactor/2));
-		ctx.stroke();
-		ctx.beginPath();
-		ctx.moveTo(measurementSpacing + leftSpace + wheelBase * zoomFactor - 2 * zoomFactor, forkTopY);
-		ctx.lineTo(measurementSpacing + leftSpace + wheelBase * zoomFactor, forkTopY);
+		ctx.moveTo(startX, startY);
+		ctx.lineTo(endX, endY);
 		ctx.stroke();
 
+		if (startY == endY) {
+			// it is horizontal
+			ctx.beginPath();
+			ctx.moveTo(startX, startY - measurementSpacing);
+			ctx.lineTo(startX, startY);
+			ctx.stroke();
 
-		ctx.save();
-		ctx.fillStyle = "rgb(250,0,0)";
-		ctx.translate(measurementSpacing + leftSpace + wheelBase * zoomFactor, groundLevel - (wheelSize * zoomFactor/2));
-		ctx.rotate(-Math.PI/2);
-		ctx.textAlign = "right";
-		ctx.fillText("23", forkLength/2 * zoomFactor, measurementSpacing);
-		ctx.restore();
+			ctx.beginPath();
+			ctx.moveTo(endX, endY - measurementSpacing);
+			ctx.lineTo(endX, endY);
+			ctx.stroke();
+
+			ctx.save();
+			ctx.fillStyle = "rgb(250,0,0)";
+			ctx.translate(startX, startY);
+			ctx.rotate(0);
+			ctx.textAlign = "center";
+			ctx.fillText(label + " in.", Math.abs(endX - startX) / 2, measurementSpacing);
+			ctx.restore();
+
+
+		} else if ( startX == endX) {
+
+			// it is vertical
+			ctx.beginPath();
+			ctx.moveTo(startX - measurementSpacing, startY);
+			ctx.lineTo(startX, startY);
+			ctx.stroke();
+
+			ctx.beginPath();
+			ctx.moveTo(endX - measurementSpacing, endY);
+			ctx.lineTo(endX, endY);
+			ctx.stroke();
+
+			ctx.save();
+			ctx.fillStyle = "rgb(250,0,0)";
+			ctx.translate(startX, startY);
+			ctx.rotate(-Math.PI/2);
+			ctx.textAlign = "center";
+			ctx.fillText(label + " in.", Math.abs(endY - startY) / 2, measurementSpacing);
+			ctx.restore();
+		}
+
 
 	}
 
