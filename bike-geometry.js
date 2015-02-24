@@ -4,7 +4,7 @@ var Bike = (function Bike() {
 	// -------------
 	
 	var name, wheelSize, forkLength, wheelBase, chainStay, bbHeight, seatTube, standOverHeight, seatAngle,
-		headAngle, topTube, name, leftSpace, groundLevel;
+		headAngle, topTube, name, leftSpace, groundLevel, renderFrame, zoomFactor, photoOpacity;
 
 	// Checks for required numbers to be present.
 	// ------------------------------------------
@@ -44,12 +44,6 @@ var Bike = (function Bike() {
     	return;
 	}
 
-
-
-
-
-
-
 	// ---------------------------------
 	// Helpers and position calculations
 	// ---------------------------------
@@ -66,7 +60,7 @@ var Bike = (function Bike() {
 	// Return the BB x position based on the chainstay length
 	var bbX = function() {
 		var x = Math.sqrt(Math.abs(Math.pow(chainStay, 2) - Math.pow(bbToWheelCenter, 2)));
-		console.log(x);
+		//console.log(x);
 		return x;
 	}
 
@@ -274,7 +268,10 @@ var Bike = (function Bike() {
 
 		setValues : function(values) {
 			name = values.name;
+            renderFrame = values.renderFrame;
 			leftSpace = parseFloat(values.leftSpace);
+            photoOpacity = parseFloat(values.photoOpacity);
+            console.log(photoOpacity);
 			groundLevel = parseFloat(values.groundLevel);
 			zoomFactor = parseFloat(values.zoomFactor);
 			wheelSize = parseFloat(values.wheelSize);
@@ -282,7 +279,7 @@ var Bike = (function Bike() {
 			chainStay = parseFloat(values.chainStay);
 			bbHeight = parseFloat(values.bbHeight);
 			seatTube = parseFloat(values.seatTube);
-			standOverHe = parseFloat(values.standOverHeight);
+			standOverHeight = parseFloat(values.standOverHeight);
 			seatAngle = parseFloat(values.seatAngle);
 			headAngle = parseFloat(values.headAngle);
 			topTube = parseFloat(values.topTube);
@@ -311,12 +308,13 @@ var Bike = (function Bike() {
 				var img = new Image;
 				img.src = imgUrl;
 				img.onload = function() {
-					ctx.globalAlpha = 0.3;
+					ctx.globalAlpha = photoOpacity;
 					ctx.drawImage(img,0,0, 600, 600 * img.height / img.width);
 					ctx.globalAlpha = 1;
 					if (renderGrid)
 						renderGridCanvas(ctx);
-					renderBike(ctx);
+                    if (renderFrame)
+					    renderBike(ctx);
 					renderMeasurements(ctx);
 				}
 				
@@ -324,7 +322,8 @@ var Bike = (function Bike() {
 			} else  {
 				if (renderGrid)
 					renderGridCanvas(ctx);
-				renderBike(ctx);
+                if (renderFrame)
+                    renderBike(ctx);
 				renderMeasurements(ctx);
 			}
 
