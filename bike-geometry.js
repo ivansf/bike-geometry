@@ -164,7 +164,7 @@ var Bike = (function Bike() {
 		ctx.globalAlpha = 1;
 		ctx.font = (2 * zoomFactor) + "px Arial";
 
-		measurementSpacing = 2 * zoomFactor;
+        var measurementSpacing = 2 * zoomFactor;
 
 		// wheels
 		renderMeasurement(ctx, leftSpace - wheelSize*zoomFactor/2, groundLevel + 1 * zoomFactor,
@@ -271,7 +271,6 @@ var Bike = (function Bike() {
             renderFrame = values.renderFrame;
 			leftSpace = parseFloat(values.leftSpace);
             photoOpacity = parseFloat(values.photoOpacity);
-            console.log(photoOpacity);
 			groundLevel = parseFloat(values.groundLevel);
 			zoomFactor = parseFloat(values.zoomFactor);
 			wheelSize = parseFloat(values.wheelSize);

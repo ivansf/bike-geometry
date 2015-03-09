@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<script type="text/javascript" src="bike-geometry.js"></script>
+	<style type="text/css">
+		body {
+			padding: 50px;
+			font-family: "Helvetica Neue", "Arial", sans-serif
+		}
+
+		canvas {
+			border: 1px solid #CCC;
+		}
+		label {
+			padding: 0 0 4px 1px;
+			display: block;
+
+		}
+        span.label {
+            display: inline-block;
+            width: 200px;
+        }
+		input {
+			font-size: 13px;
+		}
+        button {
+            font-size: 17px;
+        }
+
+        #form {
+            padding-left: 50px;
+            float: left;
+        }
+        #canvas-container {
+            width: 600px;
+            float: left;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+        }
+
+	</style>
+</head>
+<body>
+
+<h2>Bike Geometry</h2>
+<div class="container">
+	<div style="" id="canvas-container">
+		<canvas id="bike-render" width="600" height="330">
+			Hey!
+		</canvas>
+	</div>	
+	<div id="form">
+		<form>
+            <label><span class="label">Render Frame?</span>
+                <input type="checkbox" id="renderFrame" value="1" onchange="BikeRender()">
+            </label>
+            <label><span class="label">Photo Opacity</span>
+                <input type="number" id="photoOpacity" value="1" step="0.1" onchange="BikeRender()">
+            </label>
+			<label><span class="label">Left Space</span>
+				<input type="number" id="leftSpace" value="163" step="1" onchange="BikeRender()">
+			</label>
+			<label><span class="label">Ground Level</span>
+				<input type="number" id="groundLevel" value="294" step="1" onchange="BikeRender()">
+			</label>
+			<label><span class="label">Zoom Factor</span>
+				<input type="number" id="zoomFactor" value="6.6" step="0.1" onchange="BikeRender()">
+			</label>
+			<label><span class="label">Wheel Size</span>
+				<input type="number" id="wheelSize" value="27.5" onchange="BikeRender()"> 
+			</label>
+			<label><span class="label">Wheel Base</span>
+				<input type="number" id="wheelBase" value="41.5" onchange="BikeRender()">
+			</label>
+			<label><span class="label">Chainstay</span>
+				<input type="number" id="chainStay" value="17.5" step="0.5" onchange="BikeRender()">
+			</label>
+			<label><span class="label">Bottom Bracket Height</span>
+				<input type="number" id="bbHeight" value="9" step="0.05" onchange="BikeRender()"> 
+			</label>
+			<label><span class="label">Seat Tube Length</span>
+				<input type="number" id="seatTube" value="19" onchange="BikeRender()"> 
+			</label>
+			<label><span class="label">standOverHeight</span>
+				<input type="number" id="standOverHeight" value="0" onchange="BikeRender()"> 
+			</label>
+			<label><span class="label">seatAngle</span>
+				<input type="number" id="seatAngle" value="73" onchange="BikeRender()"> 
+			</label>
+			<label><span class="label">headAngle</span>
+				<input type="number" id="headAngle" value="71" onchange="BikeRender()"> 
+			</label>
+			<label><span class="label">forkLength</span>
+				<input type="number" id="forkLength" value="16" onchange="BikeRender()"> 
+			</label>
+			<label><span class="label">topTube</span>
+				<input type="number" id="topTube" value="0" onchange="BikeRender()"> 
+			</label>
+            <textarea name="" id="values">
+
+            </textarea>
+		</form>
+	</div>	
+</div>
+
+<script type="text/javascript">
+
+	values = {
+        name: "My Bike",
+        zoomFactor: "6.6",
+        wheelSize: "27.5",
+        wheelBase: "41.5",
+        chainStay: "17.5",
+        bbHeight: "10.8",
+        seatTube: "19",
+        standOverHeight: "0",
+        seatAngle: "73",
+        headAngle: "71",
+        forkLength: "16",
+        topTube: "0",
+        renderFrame: false,
+        photoOpacity: "1",
+        leftSpace: "163",
+        groundLevel: "294",
+    }
+
+
+    GenerateValues = function() {
+        var text = "{\n";
+        for (var key in values) {
+            if (values.hasOwnProperty(key)) {
+                var value = '';
+                if (typeof values[key] == 'string') {
+                    value = '"' + values[key] + '"';
+                } else {
+                    value = values[key];
+                }
+
+                text += "   " + key + ": " + value + ",\n";
+            }
+        }
+        text += "}";
+        document.getElementById('values').value = text;
+    }
+
+	// Bike.renderCanvas("bike-render", true, values);
+
+	BikeRender = function () {
+        values.renderFrame  = document.getElementById('renderFrame').checked;
+        values.photoOpacity = document.getElementById('photoOpacity').value;
+		values.leftSpace  = document.getElementById('leftSpace').value;
+		values.groundLevel  = document.getElementById('groundLevel').value;
+		values.zoomFactor  = document.getElementById('zoomFactor').value;
+		values.wheelSize  = document.getElementById('wheelSize').value;
+		values.wheelBase  = document.getElementById('wheelBase').value;
+		values.chainStay  = document.getElementById('chainStay').value;
+		values.bbHeight  = document.getElementById('bbHeight').value;
+		values.seatTube  = document.getElementById('seatTube').value;
+		values.standOverHeight  = document.getElementById('standOverHeight').value;
+		values.seatAngle  = document.getElementById('seatAngle').value;
+		values.headAngle  = document.getElementById('headAngle').value;
+		values.forkLength  = document.getElementById('forkLength').value;
+		values.topTube  = document.getElementById('topTube').value;
+		Bike.renderCanvas("bike-render", true, values, "bikes/675200_light.jpg");
+        GenerateValues();
+	}
+	BikeRender();
+
+
+
+
+
+</script>
+
+
+
+
+</body>
+</html>
